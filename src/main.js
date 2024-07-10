@@ -1,8 +1,6 @@
-import HeaderContentPresenter from './presenter/header-content-presenter';
-import TripEventsPresenter from './presenter/trip-events-presenter';
+import TripPresenter from './presenter/trip-presenter.js';
 import EventsModel from './model/events-model';
 import FilterModel from './model/filter-model.js';
-import AddEventButtonView from './view/add-event-button-view.js';
 
 // Containers
 const header = document.querySelector('.page-header');
@@ -16,36 +14,15 @@ const tripEventsContainer = document.querySelector('.trip-events');
 const eventsModel = new EventsModel();
 const filterModel = new FilterModel();
 
-// Components
-const newEventButtonComponent = new AddEventButtonView({
-  onClick: handleNewEventButtonClick
-});
-
 // Presenters
-const headerContentPresenter = new HeaderContentPresenter({
+const tripPresenter = new TripPresenter({
   headerContentContainer: headerContentContainer,
   tripInfoContainer: tripInfoContainer,
   tripControlsFiltersContainer: tripControlsFiltersContainer,
-  eventsModel,
-  filterModel,
-  addEventButtonComp: newEventButtonComponent
-});
-const tripEventsPresenter = new TripEventsPresenter({
   tripEventsContainer: tripEventsContainer,
   eventsModel,
   filterModel,
-  onNewEventDestroy: handleNewEventFormClose
 });
 
-function handleNewEventFormClose() {
-  newEventButtonComponent.element.disabled = false;
-}
-
-function handleNewEventButtonClick() {
-  tripEventsPresenter.createEvent();
-  newEventButtonComponent.element.disabled = true;
-}
-
 // init Presenters
-headerContentPresenter.init();
-tripEventsPresenter.init();
+tripPresenter.init();
