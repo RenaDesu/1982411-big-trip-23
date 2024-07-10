@@ -1,4 +1,4 @@
-import {render, replace, remove} from '../framework/render.js';
+import { render, replace, remove } from '../framework/render.js';
 import TripEventsListItemView from '../view/trip-events-list-item-view.js';
 import AddAndEditEventFormView from '../view/add-and-edit-event-form-view.js';
 import { Mode, UserAction, UpdateType } from '../const.js';
@@ -18,7 +18,7 @@ export default class EventPresenter {
   #offers = [];
   #mode = Mode.DEFAULT;
 
-  constructor({eventListContainer, onDataChange, onModeChange}) {
+  constructor({ eventListContainer, onDataChange, onModeChange }) {
     this.#eventListContainer = eventListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
@@ -104,7 +104,7 @@ export default class EventPresenter {
   };
 
   #handleFavoriteClick = () => {
-    const changedData = {...this.#event, isFavorite: !this.#event.isFavorite };
+    const changedData = { ...this.#event, isFavorite: !this.#event.isFavorite };
     this.#handleDataChange(
       UserAction.UPDATE_EVENT,
       UpdateType.MINOR,

@@ -1,7 +1,7 @@
-import {remove, render, RenderPosition} from '../framework/render.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
 import AddAndEditEventFormView from '../view/add-and-edit-event-form-view.js';
-import {nanoid} from 'nanoid';
-import {UserAction, UpdateType, newEventInfo} from '../const.js';
+import { nanoid } from 'nanoid';
+import { UserAction, UpdateType, newEventInfo } from '../const.js';
 
 export default class NewEventPresenter {
   #eventsListContainer = null;

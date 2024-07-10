@@ -18,7 +18,7 @@ export default class TripEventsMessageView extends AbstractView {
   #filterType = null;
   #isEventsListEmptyMessage = false;
 
-  constructor({message, filterType}) {
+  constructor({ message, filterType }) {
     super();
     this.#message = message;
     this.#filterType = filterType;
