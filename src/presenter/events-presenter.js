@@ -1,7 +1,7 @@
 import SortView from '../view/sort-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import TripEventsMessageView from '../view/trip-events-message-view.js';
-import { FilterType, SortType, UpdateType, UserAction } from '../const.js';
+import { FilterType, SortType, UpdateType, UserAction, Message } from '../const.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
 import { sortByDate, sortByTime, sortByPrice } from '../utils/sort.js';
@@ -22,19 +22,14 @@ export default class TripEventsPresenter {
   #newEventPresenter = null;
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.EVERYTHING;
+  #onNewEventDestroy = null;
+  #isLoading = true;
 
-  constructor({tripEventsContainer, eventsModel, filterModel, onNewEventDestroy}) {
+  constructor({ tripEventsContainer, eventsModel, filterModel, onNewEventDestroy }) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#eventsModel = eventsModel;
     this.#filterModel = filterModel;
-
-    this.#newEventPresenter = new NewEventPresenter({
-      eventsListContainer: this.#tripEventsListComponent.element,
-      cities: [...this.#eventsModel.cities],
-      offers: [...this.#eventsModel.offers],
-      onDataChange: this.#handleViewAction,
-      onDestroy: onNewEventDestroy
-    });
+    this.#onNewEventDestroy = onNewEventDestroy;
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -57,15 +52,19 @@ export default class TripEventsPresenter {
   }
 
   init() {
-    this.#cities = [...this.#eventsModel.cities];
-    this.#offers = [...this.#eventsModel.offers];
-
     this.#renderEventsBoard();
   }
 
   createEvent() {
     this.#currentSortType = SortType.DEFAULT;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newEventPresenter = new NewEventPresenter({
+      eventsListContainer: this.#tripEventsListComponent.element,
+      cities: this.#eventsModel.cities,
+      offers: this.#eventsModel.offers,
+      onDataChange: this.#handleViewAction,
+      onDestroy: this.#onNewEventFormClose
+    });
     this.#newEventPresenter.init();
   }
 
@@ -96,11 +95,15 @@ export default class TripEventsPresenter {
         this.#clearEventsBoard({resetSortType: true});
         this.#renderEventsBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#tripEventsMessageComponent);
+        this.#renderEventsBoard();
+        break;
     }
   };
 
   #handleModeChange = () => {
-    this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -112,6 +115,10 @@ export default class TripEventsPresenter {
     this.#currentSortType = eventSortType;
     this.#clearEventsBoard();
     this.#renderEventsBoard();
+  };
+
+  #onNewEventFormClose = () => {
+    this.#onNewEventDestroy();
   };
 
   #renderTripEvent(event, cities, offers) {
@@ -126,14 +133,22 @@ export default class TripEventsPresenter {
   }
 
   #renderTripEvents() {
+    this.#cities = this.#eventsModel.cities;
+    this.#offers = this.#eventsModel.offers;
     this.events.forEach((event) => {
       this.#renderTripEvent(event, this.#cities, this.#offers);
     });
   }
 
   #renderEventsBoard() {
+    this.#renderTripEventsList();
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (!this.events || this.events.length === 0) {
-      this.#renderTripEventsList();
       this.#renderTripEventsMessage();
       return;
     }
@@ -155,13 +170,25 @@ export default class TripEventsPresenter {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
   }
 
+  #renderLoading() {
+    this.#tripEventsMessageComponent = new TripEventsMessageView({ message:  Message.LOADING });
+    render(this.#tripEventsMessageComponent, this.#tripEventsListComponent.element);
+  }
+
   #renderTripEventsMessage() {
     this.#tripEventsMessageComponent = new TripEventsMessageView({ filterType: this.#filterType });
     render(this.#tripEventsMessageComponent, this.#tripEventsListComponent.element);
   }
 
+  #removeNewEventPresenter() {
+    if (this.#newEventPresenter) {
+      this.#newEventPresenter.destroy();
+      this.#newEventPresenter = null;
+    }
+  }
+
   #clearEventsBoard({ resetSortType = false } = {}) {
-    this.#newEventPresenter.destroy();
+    this.#removeNewEventPresenter();
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
 

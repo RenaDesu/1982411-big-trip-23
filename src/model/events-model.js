@@ -1,13 +1,16 @@
 import Observable from '../framework/observable.js';
-import { EVENTS_COUNT } from '../const';
-import { getRandomMockEvent } from '../mock/events-mock';
-import { getMockOffers } from '../mock/offers-mock';
-import { getMockCities } from '../mock/cities-mock';
+import { UpdateType } from '../const.js';
 
 export default class EventsModel extends Observable {
-  #events = Array.from({length: EVENTS_COUNT}, getRandomMockEvent);
-  #offers = getMockOffers();
-  #cities = getMockCities();
+  #eventsApiService = null;
+  #events = [];
+  #offers = [];
+  #cities = [];
+
+  constructor({ eventsApiService }) {
+    super();
+    this.#eventsApiService = eventsApiService;
+  }
 
   get events() {
     return this.#events;
@@ -19,6 +22,22 @@ export default class EventsModel extends Observable {
 
   get cities() {
     return this.#cities;
+  }
+
+  async init() {
+    try {
+      this.#offers = await this.#eventsApiService.offers;
+      this.#cities = await this.#eventsApiService.cities;
+
+      const events = await this.#eventsApiService.events;
+      this.#events = events.map(this.#adaptToClient);
+    } catch(err) {
+      this.#events = [];
+      this.#offers = [];
+      this.#cities = [];
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
   updateEvent(updateType, update) {
@@ -59,5 +78,22 @@ export default class EventsModel extends Observable {
     ];
 
     this._notify(updateType);
+  }
+
+  #adaptToClient(event) {
+    const adaptedEvent = {...event,
+      basePrice: event['base_price'],
+      dateFrom: event['date_from'] !== null ? new Date(event['date_from']) : event['date_from'],
+      dateTo: event['date_to'] !== null ? new Date(event['date_to']) : event['date_to'],
+      isFavorite: event['is_favorite'],
+    };
+
+    // Ненужные ключи мы удаляем
+    delete adaptedEvent['base_price'];
+    delete adaptedEvent['date_from'];
+    delete adaptedEvent['date_to'];
+    delete adaptedEvent['is_favorite'];
+
+    return adaptedEvent;
   }
 }

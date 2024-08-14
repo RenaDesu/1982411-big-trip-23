@@ -17,7 +17,7 @@ export default class NewEventPresenter {
     this.#eventsListContainer = eventsListContainer;
     this.#cities = cities;
     this.#offers = offers;
-    this.event = newEventInfo;
+    this.#event = newEventInfo;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
   }
@@ -28,7 +28,7 @@ export default class NewEventPresenter {
     }
 
     this.#addAndEditEventFormComponent = new AddAndEditEventFormView({
-      event: this.event,
+      event: this.#event,
       cities: this.#cities,
       offers: this.#offers,
       onFormSubmit: this.#handleFormSubmit,
