@@ -115,8 +115,18 @@ function createPhotosBlockTemplate(isEditEventForm, pictures) {
   return photosBlockTemplate;
 }
 
+function setButtonText(isEditEventForm, isDeleting) {
+  let buttonText = '';
+  if (isEditEventForm) {
+    buttonText = !isDeleting ? 'Delete' : 'Deleting...';
+  } else {
+    buttonText = 'Cancel';
+  }
+  return buttonText;
+}
+
 function createAddAndEditEventFormTemplate(event, cities, allOffers, isEditEventForm = false) {
-  const { basePrice, dateFrom, dateTo, destination, type, offers: selectedOffersIds } = event;
+  const { basePrice, dateFrom, dateTo, destination, type, offers: selectedOffersIds, isDisabled, isSaving, isDeleting } = event;
   const { name: cityName, description: cityDescription, pictures } = getCityById(destination, cities);
   const selectedOffers = getSelectedOffers(type, [...selectedOffersIds], allOffers);
   const citiesList = cities;
@@ -171,8 +181,12 @@ function createAddAndEditEventFormTemplate(event, cities, allOffers, isEditEvent
         <input class="event__input  event__input--price" id="event-price-1" type="text" pattern="${PRICE_PATTERN}" name="event-price" value="${totalPrice}">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">${isEditEventForm ? 'Delete' : 'Cancel'}</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>
+        ${!isSaving ? 'Save' : 'Saving...'}
+      </button>
+      <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>
+        ${setButtonText(isEditEventForm, isDeleting)}
+      </button>
       ${createCloseFormButton(isEditEventForm)}
     </header>
     <section class="event__details">
@@ -359,11 +373,20 @@ export default class AddAndEditEventFormView extends AbstractStatefulView {
   }
 
   static parseEventToState(event) {
-    return {...event, offers: new Set(event.offers)};
+    return {...event,
+      offers: new Set(event.offers),
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToEvent(event) {
     const updatedEvent = {...event, offers: [...event.offers]};
+
+    delete updatedEvent.isDisabled;
+    delete updatedEvent.isSaving;
+    delete updatedEvent.isDeleting;
 
     return updatedEvent;
   }

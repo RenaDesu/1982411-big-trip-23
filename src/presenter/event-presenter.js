@@ -59,7 +59,8 @@ export default class EventPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#addAndEditEventFormComponent, prevAddAndEditEventFormComponent);
+      replace(this.#eventsListItemComponent, prevAddAndEditEventFormComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevEventsListItemComponent);
@@ -70,6 +71,24 @@ export default class EventPresenter {
     if (this.#mode !== Mode.DEFAULT) {
       this.#addAndEditEventFormComponent.reset(this.#event);
       this.#replaceFormToEventItem();
+    }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#addAndEditEventFormComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#addAndEditEventFormComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
     }
   }
 
@@ -121,7 +140,6 @@ export default class EventPresenter {
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update
     );
-    this.#replaceFormToEventItem();
   };
 
   #handleFormClose = () => {
