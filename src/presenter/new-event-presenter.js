@@ -1,7 +1,6 @@
-import {remove, render, RenderPosition} from '../framework/render.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
 import AddAndEditEventFormView from '../view/add-and-edit-event-form-view.js';
-import {nanoid} from 'nanoid';
-import {UserAction, UpdateType, newEventInfo} from '../const.js';
+import { UserAction, UpdateType, newEventInfo } from '../const.js';
 
 export default class NewEventPresenter {
   #eventsListContainer = null;
@@ -17,7 +16,7 @@ export default class NewEventPresenter {
     this.#eventsListContainer = eventsListContainer;
     this.#cities = cities;
     this.#offers = offers;
-    this.event = newEventInfo;
+    this.#event = newEventInfo;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
   }
@@ -28,7 +27,7 @@ export default class NewEventPresenter {
     }
 
     this.#addAndEditEventFormComponent = new AddAndEditEventFormView({
-      event: this.event,
+      event: this.#event,
       cities: this.#cities,
       offers: this.#offers,
       onFormSubmit: this.#handleFormSubmit,
@@ -58,7 +57,7 @@ export default class NewEventPresenter {
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-      {id: nanoid(), ...event},
+      event,
     );
     this.destroy();
   };

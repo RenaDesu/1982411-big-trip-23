@@ -1,8 +1,10 @@
-import HeaderContentPresenter from './presenter/header-content-presenter';
-import TripEventsPresenter from './presenter/trip-events-presenter';
+import TripPresenter from './presenter/trip-presenter.js';
 import EventsModel from './model/events-model';
 import FilterModel from './model/filter-model.js';
-import AddEventButtonView from './view/add-event-button-view.js';
+import EventsApiService from './service/events-api-service.js';
+
+const AUTHORIZATION = 'Basic gM6arY83qdo9be1j';
+const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
 
 // Containers
 const header = document.querySelector('.page-header');
@@ -13,39 +15,23 @@ const tripControlsFiltersContainer = headerContentContainer.querySelector('.trip
 const tripEventsContainer = document.querySelector('.trip-events');
 
 // Models
-const eventsModel = new EventsModel();
+const eventsModel = new EventsModel({
+  eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
+});
 const filterModel = new FilterModel();
 
-// Components
-const newEventButtonComponent = new AddEventButtonView({
-  onClick: handleNewEventButtonClick
-});
-
 // Presenters
-const headerContentPresenter = new HeaderContentPresenter({
+const tripPresenter = new TripPresenter({
   headerContentContainer: headerContentContainer,
   tripInfoContainer: tripInfoContainer,
   tripControlsFiltersContainer: tripControlsFiltersContainer,
-  eventsModel,
-  filterModel,
-  addEventButtonComp: newEventButtonComponent
-});
-const tripEventsPresenter = new TripEventsPresenter({
   tripEventsContainer: tripEventsContainer,
   eventsModel,
   filterModel,
-  onNewEventDestroy: handleNewEventFormClose
 });
 
-function handleNewEventFormClose() {
-  newEventButtonComponent.element.disabled = false;
-}
-
-function handleNewEventButtonClick() {
-  tripEventsPresenter.createEvent();
-  newEventButtonComponent.element.disabled = true;
-}
-
 // init Presenters
-headerContentPresenter.init();
-tripEventsPresenter.init();
+tripPresenter.init();
+
+// init Models
+eventsModel.init();

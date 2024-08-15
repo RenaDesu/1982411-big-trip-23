@@ -9,7 +9,7 @@ function createAddEventButtonTemplate() {
 export default class AddEventButtonView extends AbstractView {
   #handleClick = null;
 
-  constructor({onClick}) {
+  constructor({ onClick }) {
     super();
     this.#handleClick = onClick;
     this.element.addEventListener('click', this.#clickHandler);
