@@ -363,7 +363,7 @@ export default class AddAndEditEventFormView extends AbstractStatefulView {
   }
 
   static parseStateToEvent(event) {
-    const updatedEvent = {...event};
+    const updatedEvent = {...event, offers: [...event.offers]};
 
     return updatedEvent;
   }

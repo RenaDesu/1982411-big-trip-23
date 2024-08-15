@@ -26,7 +26,6 @@ const HOURS = 24;
 const MINUTES = 60;
 
 const newEventInfo = {
-  'id': '',
   'basePrice': 0,
   'dateFrom': '',
   'dateTo': '',
