@@ -36,7 +36,7 @@ export default class EventsApiService extends ApiService {
     const response = await this._load({
       url: Route.POINTS,
       method: Method.POST,
-      body: JSON.stringify(event),
+      body: JSON.stringify(this.#adaptToServer(event)),
       headers: new Headers(contentTypeHeader),
     });
 
@@ -58,9 +58,9 @@ export default class EventsApiService extends ApiService {
     return parsedResponse;
   }
 
-  async deleteEvent(eventId) {
+  async deleteEvent(event) {
     const response = await this._load({
-      url: `${Route.POINTS}/${eventId}`,
+      url: `${Route.POINTS}/${event.id}`,
       method: Method.DELETE,
     });
 

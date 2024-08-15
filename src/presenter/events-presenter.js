@@ -55,7 +55,7 @@ export default class TripEventsPresenter {
     this.#renderEventsBoard();
   }
 
-  createEvent() {
+  createNewEvent() {
     this.#currentSortType = SortType.DEFAULT;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newEventPresenter = new NewEventPresenter({

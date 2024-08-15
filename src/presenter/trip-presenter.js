@@ -1,6 +1,7 @@
 import HeaderContentPresenter from '../presenter/header-content-presenter';
 import TripEventsPresenter from '../presenter/events-presenter.js';
 import AddEventButtonView from '../view/add-event-button-view.js';
+import { UpdateType } from '../const.js';
 
 export default class TripPresenter {
   #headerContentContainer = null;
@@ -12,6 +13,7 @@ export default class TripPresenter {
   #newEventButtonComponent = null;
   #eventsModel = null;
   #filterModel = null;
+  #isLoading = true;
 
   constructor({ headerContentContainer, tripInfoContainer, tripControlsFiltersContainer, tripEventsContainer, eventsModel, filterModel }) {
     this.#headerContentContainer = headerContentContainer;
@@ -40,19 +42,40 @@ export default class TripPresenter {
       filterModel: this.#filterModel,
       onNewEventDestroy: this.#handleNewEventFormClose,
     });
+
+    eventsModel.addObserver(this.#handleModelInitEvent);
+    filterModel.addObserver(this.#handleModelInitEvent);
   }
 
   init() {
     this.#headerContentPresenter.init();
     this.#tripEventsPresenter.init();
+    this.#disableNewEventButton();
+  }
+
+  #disableNewEventButton() {
+    if (this.#isLoading) {
+      this.#newEventButtonComponent.element.disabled = true;
+    } else {
+      this.#newEventButtonComponent.element.disabled = false;
+    }
   }
 
   #handleNewEventButtonClick = () => {
-    this.#tripEventsPresenter.createEvent();
+    this.#tripEventsPresenter.createNewEvent();
     this.#newEventButtonComponent.element.disabled = true;
   };
 
   #handleNewEventFormClose = () => {
     this.#newEventButtonComponent.element.disabled = false;
+  };
+
+  #handleModelInitEvent = (updateType) => {
+    switch (updateType) {
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        this.#disableNewEventButton();
+        break;
+    }
   };
 }
