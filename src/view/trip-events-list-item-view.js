@@ -90,7 +90,7 @@ export default class TripEventsListItemView extends AbstractView {
   #handleOpenEditFormClick = null;
   #handleFavoriteClick = null;
 
-  constructor({event, cities, offers, onOpenEditFormClick, onFavoriteClick}) {
+  constructor({ event, cities, offers, onOpenEditFormClick, onFavoriteClick }) {
     super();
     this.#event = event;
     this.#cities = cities;

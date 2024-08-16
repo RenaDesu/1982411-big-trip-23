@@ -1,6 +1,6 @@
-import TripInfoMainView from '../view/trip-info-main-view.js';
-import TripInfoCostView from '../view/trip-info-cost-view.js';
 import FilterPresenter from '../presenter/filter-presenter.js';
+import TripInfoPresenter from '../presenter/trip-info-presenter.js';
+import { UpdateType } from '../const.js';
 
 import { render } from '../framework/render.js';
 
@@ -12,6 +12,7 @@ export default class HeaderContentPresenter {
   #filterModel = null;
   #filterPresenter = null;
   #addEventButtonComp = null;
+  #tripInfoPresenter = null;
 
   constructor({headerContentContainer, tripInfoContainer, tripControlsFiltersContainer, eventsModel, filterModel, addEventButtonComp}) {
     this.#headerContentContainer = headerContentContainer;
@@ -25,11 +26,15 @@ export default class HeaderContentPresenter {
       eventsModel: this.#eventsModel
     });
     this.#addEventButtonComp = addEventButtonComp;
+    this.#eventsModel.addObserver(this.#handleModelUpdate);
   }
 
   init() {
-    render(new TripInfoMainView(), this.#tripInfoContainer);
-    render(new TripInfoCostView(), this.#tripInfoContainer);
+    this.#render();
+  }
+
+  #render() {
+    this.#renderTripInfo();
     this.#renderFilters();
     render(this.#addEventButtonComp, this.#headerContentContainer);
   }
@@ -37,4 +42,30 @@ export default class HeaderContentPresenter {
   #renderFilters() {
     this.#filterPresenter.init();
   }
+
+  #renderTripInfo() {
+    this.#tripInfoPresenter = new TripInfoPresenter({
+      tripInfoContainer: this.#tripInfoContainer,
+      events: this.#eventsModel.events,
+      offers: this.#eventsModel.offers,
+      cities: this.#eventsModel.cities
+    });
+    this.#tripInfoPresenter.init();
+  }
+
+  #clearTripInfo() {
+    if (this.#tripInfoPresenter) {
+      this.#tripInfoPresenter.destroy();
+      this.#tripInfoPresenter = null;
+    }
+  }
+
+  #handleModelUpdate = (updateType) => {
+    switch (updateType) {
+      case UpdateType.INIT:
+        this.#clearTripInfo();
+        this.#renderTripInfo();
+        break;
+    }
+  };
 }
